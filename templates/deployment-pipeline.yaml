@@ -11,19 +11,18 @@ Parameters:
     Default: XeniyaFesenko
   GithubRepo:
     Type: String
-    Default: Fargate-ECSCluster-Cloudformation
+    Default: ecs-refarch-continuous-deployment
   GithubBranch:
     Type: String
     Default: master
   GithubOAuthToken:
     Type: AWS::SSM::Parameter::Value<String>
     Default: gittoken
-
   Cluster:
     Type: String
-
   Service:
     Type: String
+
 
 
 Resources:
@@ -119,27 +118,11 @@ Resources:
         Type: CODEPIPELINE
       Source:
         Type: CODEPIPELINE
-        BuildSpec: |
-          version: 0.2
-          phases:
-            pre_build:
-              commands:
-                - $(aws ecr get-login --no-include-email)
-                - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
-                - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
-            build:
-              commands:
-                - docker build --tag "$IMAGE_URI" .
-            post_build:
-              commands:
-                - docker push "$IMAGE_URI"
-                - printf '[{"name":"simple-app","imageUri":"%s"}]' "$IMAGE_URI" > images.json
-          artifacts:
-            files: images.json
+        BuildSpec: buildspec.yml
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/docker:17.09.0
-        Type: LINUX_CONTAINER
+        Image: aws/codebuild/standard:4.0
+        ImagePullCredentialsType: CODEBUILD
         EnvironmentVariables:
           - Name: AWS_DEFAULT_REGION
             Value: !Ref AWS::Region
@@ -165,10 +148,10 @@ Resources:
                 Version: 1
                 Provider: GitHub
               Configuration:
-                Owner: !Ref GitHubUser
-                Repo: !Ref GitHubRepo
-                Branch: !Ref GitHubBranch
-                OAuthToken: !Ref GitHubToken
+                Owner: !Ref GithubUserName
+                Repo: !Ref  GithubRepo
+                Branch: !Ref GithubBranch
+                OAuthToken: !Ref GithubOAuthToken
               OutputArtifacts:
                 - Name: App
               RunOrder: 1
