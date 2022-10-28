@@ -3,18 +3,21 @@ AWSTemplateFormatVersion: 2010-09-09
 
 
 Parameters:
-  GitHubRepo:
+  Stage:
     Type: String
-
-  GitHubBranch:
+    Default: dev
+  GithubUserName:
     Type: String
-
-  GitHubToken:
+    Default: XeniyaFesenko
+  GithubRepo:
     Type: String
-    NoEcho: true
-
-  GitHubUser:
+    Default: Fargate-ECSCluster-Cloudformation
+  GithubBranch:
     Type: String
+    Default: master
+  GithubOAuthToken:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: gittoken
 
   Cluster:
     Type: String
