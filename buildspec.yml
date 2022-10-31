@@ -42,7 +42,7 @@ phases:
      #- docker push $REPOSITORY_URI:latest
      #- docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
-      - printf '[{"name":"%s","imageUri":"%s"}]' $SERVICE_NAME $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json 
+      - printf '[{"name":"%s","imageUri":"%s"}]' $SERVICE_NAME $REPOSITORY_URI:$IMAGE_TAG > images.json
 cache:
   paths:
     - '/root/.m2/*/'
