@@ -27,17 +27,20 @@ phases:
       - echo Building the Docker image...
       - echo $REPOSITORY_URI
       - ls -ltr 
-      - docker build -t 858855954940.dkr.ecr.us-east-1.amazonaws.com/vac01cdrecr/800:latest .
-     # - docker build -t $REPOSITORY_URI:latest .
-     # - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-      - docker tag 858855954940.dkr.ecr.us-east-1.amazonaws.com/vac01cdrecr/800:latest 858855954940.dkr.ecr.us-east-1.amazonaws.com/vac01cdrecr/800:$IMAGE_TAG   
+     #- docker build -t 858855954940.dkr.ecr.us-east-1.amazonaws.com/vac01cdrecr/800:latest .
+      - docker build -t 858855954940.dkr.ecr.us-east-1.amazonaws.com/dev-858855954940-ecr-repository:latest .
+     #- docker build -t $REPOSITORY_URI:latest .
+     #- docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+     #- docker tag 858855954940.dkr.ecr.us-east-1.amazonaws.com/vac01cdrecr/800:latest 858855954940.dkr.ecr.us-east-1.amazonaws.com/vac01cdrecr/800:$IMAGE_TAG  
+      - docker tag 858855954940.dkr.ecr.us-east-1.amazonaws.com/dev-858855954940-ecr-repository:latest 858855954940.dkr.ecr.us-east-1.amazonaws.com/dev-858855954940-ecr-repository:$IMAGE_TAG
   post_build:
     commands:
       - echo Build completed on date
       - echo Pushing the Docker images...
-      - docker push 858855954940.dkr.ecr.us-east-1.amazonaws.com/vac01cdrecr/800:latest
-      #- docker push $REPOSITORY_URI:latest
-      #- docker push $REPOSITORY_URI:$IMAGE_TAG
+     #- docker push 858855954940.dkr.ecr.us-east-1.amazonaws.com/vac01cdrecr/800:latest
+      - docker push 858855954940.dkr.ecr.us-east-1.amazonaws.com/dev-858855954940-ecr-repository:latest
+     #- docker push $REPOSITORY_URI:latest
+     #- docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
       - printf '[{"name":"%s","imageUri":"%s"}]' $SERVICE_NAME $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json 
 cache:
