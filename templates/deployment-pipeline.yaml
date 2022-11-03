@@ -15,7 +15,7 @@ Parameters:
   GithubBranch:
     Type: String
     Default: master
-  GithubOAuthToken:
+  GitHubToken:
     Type: AWS::SSM::Parameter::Value<String>
     Default: gittoken
   Cluster:
