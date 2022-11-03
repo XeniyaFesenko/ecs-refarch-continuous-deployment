@@ -25,11 +25,10 @@ Parameters:
 
 
 
-  # Create an ECR Repository to store docker images
-  ECRRepository:
+Resources:
+  Repository:
     Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: !Join ['-', [!Ref Stage, !Ref 'AWS::AccountId', 'ecr-repository']]
+    DeletionPolicy: Retain
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
@@ -108,27 +107,45 @@ Parameters:
                   - codebuild:BatchGetBuilds
                   - iam:PassRole
 
-  # Create the BuildProject with required Build information
-  BuildProject:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+
+  CodeBuildProject:
     Type: AWS::CodeBuild::Project
-    Properties: 
-      Artifacts: 
+    Properties:
+      Artifacts:
         Type: CODEPIPELINE
-      Environment: 
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:4.0
-        ImagePullCredentialsType: CODEBUILD
-        PrivilegedMode: True
-        Type: LINUX_CONTAINER
-        EnvironmentVariables:
-          - Name: ECR_REPOSITORY_URI
-            Value: !Join [ ".", [ !Ref "AWS::AccountId", "dkr.ecr", !Ref "AWS::Region", !Join [ "/", [ "amazonaws.com", !Ref "ECRRepository" ] ] ] ]
-      Name: !Join ['-', [!Ref Stage, !Ref 'AWS::AccountId', 'BuildProject']]
-      ServiceRole: !Ref CodeBuildExecutionRole
       Source:
         Type: CODEPIPELINE
-        # This file (buildspec.yml In Source code) contains commands to Create and Push a docker image to the ECR_REPOSITORY_URI
-        BuildSpec: buildspec.yml
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - $(aws ecr get-login --no-include-email)
+                - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
+                - IMAGE_URI="${REPOSITORY_URI}:${TAG}"
+            build:
+              commands:
+                - docker build --tag "$IMAGE_URI" .
+            post_build:
+              commands:
+                - docker push "$IMAGE_URI"
+                - printf '[{"name":"simple-app","imageUri":"%s"}]' "$IMAGE_URI" > images.json
+          artifacts:
+            files: images.json
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/docker:17.09.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: REPOSITORY_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${Repository}
+      Name: !Ref AWS::StackName
+      ServiceRole: !Ref CodeBuildServiceRole
 
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -147,10 +164,10 @@ Parameters:
                 Version: 1
                 Provider: GitHub
               Configuration:
-                Owner: !Ref GithubUserName
-                Repo: !Ref  GithubRepo
-                Branch: !Ref GithubBranch
-                OAuthToken: !Ref GithubOAuthToken
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitHubRepo
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
               OutputArtifacts:
                 - Name: App
               RunOrder: 1
