@@ -29,7 +29,7 @@ Parameters:
   GitHubRepo:
     Type: String
   # Default: ecs-demo-php-simple-app
-    Default: sample-maven-app
+    Default: ecs-refarch-continuous-deployment
     Description: The repo name of the sample service.
 
   GitHubBranch:
@@ -43,7 +43,7 @@ Parameters:
 
   templatebucket01:
     Type: String
-    Default: ecs-refarch-continuous-deployment-xf
+    Default: templatebucket01
     Description: >
       The S3 bucket from which to fetch the templates used by this stack.
 
@@ -57,7 +57,7 @@ Metadata:
         default: "Repo"
       GitHubBranch:
         default: "Branch"
-      GitHubToken:
+      GithubOAuthToken:
         default: "Personal Access Token"
       LaunchType:
         default: "Launch Type"
@@ -72,7 +72,7 @@ Metadata:
           - GitHubRepo
           - GitHubBranch
           - GitHubUser
-          - GitHubToken
+          - GithubOAuthToken
       - Label:
           default: Stack Configuration
         Parameters:
@@ -98,7 +98,7 @@ Resources:
         Cluster: !GetAtt Cluster.Outputs.ClusterName
         Service: !GetAtt Service.Outputs.Service
         GitHubUser: !Ref GitHubUser
-        GitHubToken: !Ref GitHubToken
+        GithubOAuthToken: !Ref GithubOAuthToken
         GitHubRepo: !Ref GitHubRepo
         GitHubBranch: !Ref GitHubBranch
 
