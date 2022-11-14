@@ -37,7 +37,7 @@ Parameters:
     Default: main
     Description: The branch of the repo to continuously deploy.
 
-  GithubOAuthToken:
+  GitHubToken:
     Type: AWS::SSM::Parameter::Value<String>
     Default: gittoken
 
@@ -57,7 +57,7 @@ Metadata:
         default: "Repo"
       GitHubBranch:
         default: "Branch"
-      GithubOAuthToken:
+      GitHubToken:
         default: "Personal Access Token"
       LaunchType:
         default: "Launch Type"
@@ -72,7 +72,7 @@ Metadata:
           - GitHubRepo
           - GitHubBranch
           - GitHubUser
-          - GithubOAuthToken
+          - GitHubToken
       - Label:
           default: Stack Configuration
         Parameters:
@@ -98,7 +98,7 @@ Resources:
         Cluster: !GetAtt Cluster.Outputs.ClusterName
         Service: !GetAtt Service.Outputs.Service
         GitHubUser: !Ref GitHubUser
-        GithubOAuthToken: !Ref GithubOAuthToken
+        GitHubToken: !Ref GitHubToken
         GitHubRepo: !Ref GitHubRepo
         GitHubBranch: !Ref GitHubBranch
 
