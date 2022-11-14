@@ -41,7 +41,7 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: gittoken
 
-  TemplateBucket:
+  templatebucket01:
     Type: String
     Default: ecs-refarch-continuous-deployment-xf
     Description: >
@@ -76,14 +76,14 @@ Metadata:
       - Label:
           default: Stack Configuration
         Parameters:
-          - TemplateBucket
+          - templatebucket01
 
 
 Resources:
   Cluster:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplateBucket}/templates/ecs-cluster.yaml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${templatebucket01}/templates/ecs-cluster.yaml"
       Parameters:
         LaunchType: !Ref LaunchType
         SourceSecurityGroup: !GetAtt LoadBalancer.Outputs.SecurityGroup
@@ -93,7 +93,7 @@ Resources:
   DeploymentPipeline:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplateBucket}/templates/deployment-pipeline.yaml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${templatebucket01}/templates/deployment-pipeline.yaml"
       Parameters:
         Cluster: !GetAtt Cluster.Outputs.ClusterName
         Service: !GetAtt Service.Outputs.Service
@@ -105,7 +105,7 @@ Resources:
   LoadBalancer:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplateBucket}/templates/load-balancer.yaml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${templatebucket01}/templates/load-balancer.yaml"
       Parameters:
         LaunchType: !Ref LaunchType
         Subnets: !GetAtt VPC.Outputs.Subnets
@@ -114,7 +114,7 @@ Resources:
   VPC:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplateBucket}/templates/vpc.yaml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${templatebucket01}/templates/vpc.yaml"
       Parameters:
         Name: !Ref AWS::StackName
         VpcCIDR: 10.215.0.0/16
@@ -124,7 +124,7 @@ Resources:
   Service:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/${TemplateBucket}/templates/service.yaml"
+      TemplateURL: !Sub "https://s3.amazonaws.com/${templatebucket01}/templates/service.yaml"
       Parameters:
         Cluster: !GetAtt Cluster.Outputs.ClusterName
         LaunchType: !Ref LaunchType
